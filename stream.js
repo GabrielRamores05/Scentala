@@ -13,7 +13,6 @@ export const BURN_GLSL = /* glsl */`
     return clamp(0.7 * a + 0.3 * burnNoise(p * freq), 0.0, 1.0);
   }
 `;
-const fract = v => v - Math.floor(v);
 export function burnNoise(x, y, z) {
   return 0.5 + 0.25 * Math.sin(x * 1.7 + Math.sin(y * 2.3 + z * 0.7)) * Math.sin(z * 1.9 + y * 1.3)
     + 0.25 * Math.sin(y * 3.1 + Math.sin(x * 2.9 - z * 1.1) * 1.4);
@@ -94,4 +93,3 @@ export function createStream(pts, { size = 9 } = {}) {
   return { points, uniforms, count: N };
 }
 
-export { fract };

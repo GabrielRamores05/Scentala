@@ -376,10 +376,11 @@ const footEl = document.querySelector('.foot');
 const cards = [...document.querySelectorAll('.note-card')];
 const beatCards = [...document.querySelectorAll('.beat-card')];
 const heroEls = document.querySelectorAll('.hero-eyebrow, .hero-foot, .scroll-cue');
-let anchors = [];
+let anchors = [], footPauseY = Infinity;
 function measure() {
   anchors = stopEls.map(el => el.offsetTop);
   anchors.push(footEl.offsetTop - innerHeight * 0.2);
+  footPauseY = footEl.offsetTop + innerHeight * 0.3;
 }
 addEventListener('resize', measure);
 function storyAt(y) {
@@ -460,6 +461,7 @@ let introFill = 0, absorb = 0;
 const heroIn = { v: 0 };
 const grabBox = new THREE.Box3();
 const corners = Array.from({ length: 8 }, () => new THREE.Vector3());
+const streamScratch = [];   // reused each frame so the stream update allocates nothing
 
 let curVariant = -1;
 function setVariant(i) {
@@ -554,7 +556,10 @@ function tick(dt, t) {
     armQ.copy(arm.root.quaternion).multiply(Q_Y90);
     outQ.copy(boxQ).slerp(armQ, 0.5);
 
-    const k = 1 / Math.max(wAll, 1e-4);
+    // Normalise the active poses by max(wAll, 1): while IV/V overlap (wAll > 1) the weights
+    // stay inside the hull, and on the wrist→floor return (wAll ≤ 1) the rest term (1 - wAll)
+    // completes a clean blend — with 1/wAll the bracelet overshot the wrist and then snapped.
+    const k = 1 / Math.max(wAll, 1);
     poseP.set(0, 0, 0)
       .addScaledVector(overP, wOver * k)
       .addScaledVector(inP, wIn * k)
@@ -608,7 +613,10 @@ function tick(dt, t) {
 
   // Streams need the bracelet's pose (ring centre in world space).
   const axisC = v4.set(braceletWorld.x, braceletWorld.y + CENTRE_Y, braceletWorld.z);
-  for (const st of [intro.stream, ...notes.map(n => n.stream)]) {
+  streamScratch.length = 0;
+  streamScratch.push(intro.stream);
+  for (const n of notes) streamScratch.push(n.stream);
+  for (const st of streamScratch) {
     if (!st || !st.points.visible) continue;
     const u = st.uniforms;
     u.uTime.value = t;
@@ -708,7 +716,7 @@ function tick(dt, t) {
   // ── Offscreen passes
   if (!Q.has('norefl')) reflection.update(scene, camera);
 
-  engine.paused = footEl.getBoundingClientRect().top < -innerHeight * 0.3;
+  engine.paused = window.scrollY > footPauseY;
 }
 
 // ─── Shop: the kraft bag that fills itself (Sola-style add → arc → nest) ────────
@@ -770,6 +778,7 @@ function addPoke(item) {
   const n = bag.length - 1, i = n % POKE_X.length;
   const b = pouch(), sc = b.width / 172;
   const el = bead(item.tint, 'sbag-item');
+  el.dataset.uid = String(item.uid);
   el.style.zIndex = String(2 + n);
   const x = POKE_X[i] * sc, y = POKE_Y[i] * sc, r = POKE_ROT[i];
   el.style.transform = `translate(-50%,-50%) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${r}deg)`;
@@ -808,7 +817,7 @@ function peekRow(item) {
     const at = bag.findIndex(x => x.uid === item.uid);
     if (at < 0) return;
     bag.splice(at, 1);
-    const poke = sbagItems.children[at];
+    const poke = sbagItems.querySelector(`[data-uid="${item.uid}"]`);
     if (poke) poke.remove();
     bump(); renderPeek();
   });
@@ -821,12 +830,11 @@ function renderPeek() {
   speekList.replaceChildren(...bag.map(peekRow));
   speekCount.textContent = n ? `${n} ${n === 1 ? 'bracelet' : 'bracelets'}` : 'Empty';
   speekEmpty.style.display = n ? 'none' : '';
-  const sub = bag.reduce((a, b) => a + b.price, 0);
+  const sub = bagTotal();
   speekTotal.textContent = money(sub);
   speekShip.textContent = 'Free';
   speekGrand.textContent = money(sub);
   speekCheckout.disabled = !n;
-  speekCheckout.classList.remove('done');
   speekCheckout.querySelector('span').textContent = 'Checkout';
 }
 
@@ -845,6 +853,7 @@ const fRegion = document.getElementById('fRegion'), fCity = document.getElementB
   fStreet = document.getElementById('fStreet'), fZone = document.getElementById('fZone'), fHouse = document.getElementById('fHouse'), fZip = document.getElementById('fZip'), fFull = document.getElementById('fFull'), fNote = document.getElementById('fNote');
 const doneRef = document.getElementById('doneRef'), doneLines = document.getElementById('doneLines'), doneAddr = document.getElementById('doneAddr'), doneCount = document.getElementById('doneCount');
 const bagTotal = () => bag.reduce((a, b) => a + b.price, 0);
+const PAY_LABEL = { card: 'Card', gcash: 'GCash', maya: 'PayMaya' };
 
 // The receipt: every bracelet in the bag, then the totals.
 function renderCheckout() {
@@ -879,7 +888,7 @@ function setPay(kind) {
   document.querySelectorAll('.pay-opt').forEach(b => { const on = b.dataset.pay === kind; b.classList.toggle('on', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); });
   const wallet = kind !== 'card';
   payCard.hidden = wallet; payWallet.hidden = !wallet;
-  payHint.textContent = `You will be redirected to ${kind === 'gcash' ? 'GCash' : 'Maya'} to approve the payment.`;
+  payHint.textContent = `You will be redirected to ${PAY_LABEL[kind]} to approve the payment.`;
 }
 document.querySelectorAll('.pay-opt').forEach(b => b.addEventListener('click', () => setPay(b.dataset.pay)));
 
@@ -942,7 +951,7 @@ speekCheckout.addEventListener('click', () => {
 speekPlace.addEventListener('click', () => {
   if (!bag.length || !validateOrder()) return;
   const kind = document.querySelector('.pay-opt.on').dataset.pay;
-  const label = { card: 'card', gcash: 'GCash', maya: 'PayMaya' }[kind];
+  const label = PAY_LABEL[kind];
   const sub = bagTotal();
   const ref = 'SC-' + String(Date.now()).slice(-6) + '-' + Math.floor(Math.random() * 90 + 10);
   doneRef.innerHTML = `Thank you — order <b>${ref}</b> is placed. We will message you to confirm.`;

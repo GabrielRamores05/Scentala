@@ -184,12 +184,12 @@ export function createBracelet({ renderer, env }) {
 
   function setInfusion(v) { state.glow = clamp(v); }
 
-  const emissive = new THREE.Color();
+  const emissive = new THREE.Color(), WHITE = new THREE.Color(0xffffff);
   function solve(dt) {
     const k = 1 - Math.exp(-9 * Math.max(dt, 0));
     scent.color.lerp(tintTarget, k);
     // A scent-glow: beads take on the variant colour and breathe with the infusion.
-    emissive.copy(scent.color).lerp(new THREE.Color(0xffffff), 0.35);
+    emissive.copy(scent.color).lerp(WHITE, 0.35);
     scent.emissive.copy(emissive).multiplyScalar(state.glow * 0.4);
     state.energy = state.glow * 0.35;
     return state;
