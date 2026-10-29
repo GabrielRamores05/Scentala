@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Scentála — scented bead bracelets you wear</title>
+  <meta name="description" content="SCENTÁLA: wax-based scented bead bracelets with customisable charms. Wear your scent — choose from the Zest, Crème and Oake collections, ₱85–₱140. A student-run business of AdNU SABM.">
+  <meta name="theme-color" content="#283106">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2024'%3E%3Crect%20width='16'%20height='24'%20fill='%23283106'/%3E%3Ccircle%20cx='8'%20cy='14'%20r='6'%20fill='none'%20stroke='%23b88746'%20stroke-width='1'/%3E%3Cg%20fill='%23e8dcc8'%3E%3Ccircle%20cx='8'%20cy='8'%20r='1.3'/%3E%3Ccircle%20cx='13.2'%20cy='11'%20r='1.3'/%3E%3Ccircle%20cx='13.2'%20cy='17'%20r='1.3'/%3E%3Ccircle%20cx='8'%20cy='20'%20r='1.3'/%3E%3Ccircle%20cx='2.8'%20cy='17'%20r='1.3'/%3E%3Ccircle%20cx='2.8'%20cy='11'%20r='1.3'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400;1,6..96,500&family=Hanken+Grotesk:wght@300;400;500;600&family=Italiana&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <canvas id="gl" aria-hidden="true"></canvas>
+
+  <div class="loader" role="status" aria-live="polite">
+    <div class="ld-ring" aria-hidden="true">
+      <svg viewBox="0 0 80 80">
+        <circle class="ld-track" cx="40" cy="40" r="30"/>
+        <circle class="ld-prog" cx="40" cy="40" r="30"/>
+        <g class="ld-beads">
+          <circle cx="40" cy="18" r="3.2"/><circle cx="51" cy="20.95" r="3.2"/>
+          <circle cx="59.05" cy="29" r="3.2"/><circle cx="62" cy="40" r="3.2"/>
+          <circle cx="59.05" cy="51" r="3.2"/><circle cx="51" cy="59.05" r="3.2"/>
+          <circle cx="40" cy="62" r="3.2"/><circle cx="29" cy="59.05" r="3.2"/>
+          <circle cx="20.95" cy="51" r="3.2"/><circle cx="18" cy="40" r="3.2"/>
+          <circle cx="20.95" cy="29" r="3.2"/><circle cx="29" cy="20.95" r="3.2"/>
+        </g>
+      </svg>
+    </div>
+    <p class="ld-word">Scentála</p>
+    <p class="ld-line">Infusing <span class="ld-pct">0</span>%</p>
+  </div>
+
+  <header class="nav">
+    <a class="brand" href="#top" aria-label="Scentála, home">
+      <svg viewBox="0 0 16 24" aria-hidden="true"><circle cx="8" cy="14" r="6" fill="none" stroke="currentColor" stroke-width="1"/><g fill="currentColor"><circle cx="8" cy="8" r="1.3"/><circle cx="13.2" cy="11" r="1.3"/><circle cx="13.2" cy="17" r="1.3"/><circle cx="8" cy="20" r="1.3"/><circle cx="2.8" cy="17" r="1.3"/><circle cx="2.8" cy="11" r="1.3"/></g><path d="M8 5V1M6.4 2.4h3.2" stroke="currentColor" stroke-width="1" fill="none"/></svg>
+      <span>Scentála</span>
+    </a>
+    <nav class="links" aria-label="Primary">
+      <a href="#zest">The scents</a>
+      <a href="#story">Our story</a>
+      <a href="#shop">Shop</a>
+    </nav>
+    <div class="nav-right">
+      <span class="bag" aria-live="polite">Bag <b class="bag-n">0</b></span>
+      <a class="btn btn-ghost" href="#shop" data-magnetic>Shop the scents</a>
+    </div>
+  </header>
+
+  <aside class="gauge" aria-label="Scent infusion: collections poured into the beads">
+    <p class="gauge-title">Scent<br><em>infusion</em></p>
+    <div class="gauge-bar"><i class="gauge-fill"></i>
+      <span class="gauge-tick" style="--y:.34" data-n="0">Zest</span>
+      <span class="gauge-tick" style="--y:.66" data-n="1">Crème</span>
+      <span class="gauge-tick" style="--y:.95" data-n="2">Oake</span>
+    </div>
+    <p class="gauge-pct"><span class="gauge-v">0</span>%</p>
+    <p class="gauge-scent">Lūmen</p>
+  </aside>
+
+  <main id="top">
+    <section class="hero" data-stop="0">
+      <h1 class="sr">Scentála — wax-based scented bead bracelets you wear, with customisable charms.</h1>
+      <p class="hero-eyebrow"><span>Wearable fragrance</span><span class="dot"></span><span>Scentála Partnership, AdNU — est. 2026</span></p>
+      <div class="hero-foot">
+        <div class="hero-copy">
+          <p class="hero-line">Scentála — <em>wear your scent.</em></p>
+          <p class="hero-sub">Wax-based beads — beeswax, shea butter, jojoba oil and bamboo charcoal powder — steeped in fragrance and sealed with a water-based gloss. Pick your scent, pick your charms. No bottle to carry, no mist in the air. ₱85–₱140.</p>
+          <div class="hero-cta">
+            <a class="btn btn-solid" href="#shop" data-magnetic>Shop the scents</a>
+            <a class="btn btn-text" href="#zest">Meet the collections</a>
+          </div>
+        </div>
+        <div class="hint" aria-hidden="true">
+          <span class="hint-ico"><i></i></span>
+          <span><b>Drag the bracelet.</b><br>Spin it — then pick a scent to re-tint the beads.</span>
+        </div>
+      </div>
+      <p class="scroll-cue" aria-hidden="true">Scroll — the scents arrive</p>
+    </section>
+
+    <section class="note" id="zest" data-stop="1" data-side="left">
+      <div class="note-pin">
+        <article class="note-card">
+          <p class="note-kicker"><span class="roman">I</span><span>Citrus Collection</span><span class="rule"></span><span>bright · invigorating</span></p>
+          <h2>Zest <em>Citrus Collection</em></h2>
+          <p class="latin">Lemon · grapefruit · tangerine · spearmint</p>
+          <p class="note-body">Light, airy scents built to lift you awake without ever shouting across a classroom. Cold-pressed citrus oils keep their bitterness, backed by green tea, neroli and a breath of mint — fresh and clean, the way Gen Z likes to wear fragrance.</p>
+          <div class="variants">
+            <button class="variant" data-variant="0" data-magnetic><b>Lūmen</b><i>lemon · bergamot · green tea · neroli · musk</i><span>₱85</span></button>
+            <button class="variant" data-variant="1" data-magnetic><b>Aër</b><i>grapefruit · spearmint · jasmine · white cedar</i><span>₱95</span></button>
+            <button class="variant" data-variant="2" data-magnetic><b>Citra</b><i>tangerine · orange · magnolia · lily · white amber</i><span>₱110</span></button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="note" id="creme" data-stop="2" data-side="right">
+      <div class="note-pin">
+        <article class="note-card">
+          <p class="note-kicker"><span class="roman">II</span><span>Sweet Gourmand</span><span class="rule"></span><span>warm · indulgent</span></p>
+          <h2>Crème <em>Sweet Gourmand</em></h2>
+          <p class="latin">Vanilla · caramel · cocoa · praline</p>
+          <p class="note-body">Comfort you can wear. Vanilla and caramel settle next to almond and sugar petals, while cocoa, roasted hazelnut and brown sugar deepen the sweet — soft musk and sandalwood underneath so the sweetness never turns sticky.</p>
+          <div class="variants">
+            <button class="variant" data-variant="3" data-magnetic><b>Dulcis</b><i>vanilla · caramel · almond · sugar petals · musk</i><span>₱95</span></button>
+            <button class="variant" data-variant="4" data-magnetic><b>Noisette</b><i>cocoa · hazelnut · brown sugar · milk cream · sandalwood</i><span>₱120</span></button>
+            <button class="variant" data-variant="5" data-magnetic><b>Ambrois</b><i>caramel · orange zest · cream · praline · vanilla · cedarwood</i><span>₱130</span></button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="note" id="oake" data-stop="3" data-side="left">
+      <div class="note-pin">
+        <article class="note-card">
+          <p class="note-kicker"><span class="roman">III</span><span>Woody Keynote</span><span class="rule"></span><span>grounded · quiet</span></p>
+          <h2>Oake <em>Woody Keynote</em></h2>
+          <p class="latin">Oak · vetiver · cedar · sandalwood</p>
+          <p class="note-body">Deep, grounded elegance for a quiet presence. Green leaf and oak over a vetiver heart, finished with musk and amber; cedar and sandalwood meet juniper and citrus for a smooth, confident warmth. The twosome for days you want to be calm.</p>
+          <div class="variants">
+            <button class="variant" data-variant="6" data-magnetic><b>Sylva</b><i>green leaf · rosemary · oak · vetiver · musk · amber</i><span>₱110</span></button>
+            <button class="variant" data-variant="7" data-magnetic><b>Serenum</b><i>cedar · sandalwood · juniper · citrus · vanilla-amber</i><span>₱140</span></button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="beat" id="packed" data-stop="4" data-side="left">
+      <div class="beat-pin">
+        <article class="beat-card">
+          <p class="note-kicker"><span class="roman">IV</span><span>The packaging</span><span class="rule"></span><span>plant-based kraft</span></p>
+          <h2>It arrives <em>like this.</em></h2>
+          <p class="latin">Eight inches square, three deep · oil-resistant liner</p>
+          <p class="note-body">The bracelet is laid into a plant-based kraft box, bedded on an oil-resistant liner that keeps the fragrance in and the paper clean. The lift-off lid carries the mark and the wordmark — you see part of the product before the box is ever opened.</p>
+          <ul class="beat-list">
+            <li><b>The box</b><span>8" × 8" × 3" board, printed with the mark and the SCENTÁLA wordmark.</span></li>
+            <li><b>The liner</b><span>Barrier sheet that holds the scent where it belongs.</span></li>
+            <li><b>The card</b><span>Each scent arrives with its own label — SCENTÁLA <em>of</em> Zest, Crème or Oake.</span></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="beat" id="unwrap" data-stop="5" data-side="left">
+      <div class="beat-pin">
+        <article class="beat-card">
+          <p class="note-kicker"><span class="roman">V</span><span>Opening it</span><span class="rule"></span><span>slowly, with the scroll</span></p>
+          <h2>Open it <em>slowly.</em></h2>
+          <p class="latin">Lift-off lid · no tape, no plastic</p>
+                      <p class="note-body">The lid lifts smoothly — no tearing, no tape, nothing to throw away. The bracelet is bedded on its liner, the card tucked behind, and the first thing you smell is the first thing you see.</p>
+          <ul class="beat-list">
+            <li><b>Sealed, not taped</b><span>The lid sits over the tray, so the box closes and opens as many times as you like.</span></li>
+            <li><b>Fragrance held in</b><span>The barrier liner keeps the scent in the box instead of in the paper.</span></li>
+            <li><b>Reusable</b><span>Plant-based board — keep it for charms, trinkets and the next scent you add.</span></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="beat" id="worn" data-stop="6" data-side="left">
+      <div class="beat-pin">
+        <article class="beat-card">
+          <p class="note-kicker"><span class="roman">VI</span><span>On the wrist</span><span class="rule"></span><span>wear your scent</span></p>
+          <h2>Then you <em>wear it.</em></h2>
+          <p class="latin">Stretch it on · thirteen beads of wax and oil</p>
+          <p class="note-body">The cord is elastic, so it goes on like any bracelet and settles against the skin without clasp or fuss. Warmth from the wrist wakes the fragrance — no bottle to carry, no mist in the air, and nothing to spill on your uniform.</p>
+          <ul class="beat-list">
+            <li><b>Close to the skin</b><span>Worn scent blooms gently with body heat instead of a cloud of alcohol.</span></li>
+            <li><b>Made to be yours</b><span>Add charms, trinkets and new scents to the same ring whenever you like.</span></li>
+            <li><b>₱85 – ₱140</b><span>Eight scents, three collections, on campus and by pre-order.</span></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="house" id="story" data-stop="7">
+      <div class="house-inner">
+        <p class="kicker">Our story</p>
+        <h2>Born on <em>14 January 2026.</em></h2>
+        <p class="lede">SCENTÁLA began as an academic requirement and became a real idea: how do you wear a scent without carrying a bottle, spilling it on your uniform, or filling a classroom with someone else's headache? Ten students of the Accountancy, Business and Management strand at Ateneo de Naga University — AC1A in SY 2025–2026, AC2A in SY 2026–2027 — answered it with a bracelet.</p>
+        <p class="lede lede-2">The trade name joins the English “scent” with the Filipino “tala” — star. Fragrance made wearable; a little light you carry with you. Every bead is made in-house, from beeswax, shea butter, jojoba oil and bamboo charcoal powder, coloured and scented to order, then sealed with a water-based gloss.</p>
+        <div class="mv">
+          <div><p class="kicker">Mission</p><p class="lede">SCENTÁLA is dedicated to empowering students and young individuals through affordable scented bracelets that inspire confidence, calmness and self-expression — fusing creativity with responsibility for our customers and our community.</p></div>
+          <div><p class="kicker">Vision</p><p class="lede">A student-driven fragrance-accessory brand recognised for turning identity into innovative, safe, mood-enhancing scented bracelets — leading sustainable, functional design that elevates Filipino creativity.</p></div>
+        </div>
+        <div class="stats values">
+          <div><b>Sustainability</b><span>A solid alternative to liquid perfume — no sprays, no single-use packaging, made in-house with precise control over every material.</span></div>
+          <div><b>Transparency</b><span>We share our bead-making research, our process and our sources, so you know exactly what you are wearing.</span></div>
+          <div><b>Accountability</b><span>From the first mould to the final assembly, every piece is made under our own supervision and signed by our hands.</span></div>
+          <div><b>Consistency</b><span>Strict batch control keeps every bead uniform in size and aromatic strength — no weak links.</span></div>
+          <div><b>Durability</b><span>A high-density solid bead that resists cracking and holds its scent through daily wear.</span></div>
+          <div><b>Inclusivity</b><span>No alcohol mists, no direct skin contact: fine fragrance reimagined for sensitive skin and sensitive lungs.</span></div>
+        </div>
+        <p class="fine">Rooted in Laudato Si' — care for our common home — and aligned with SDG 12 (Responsible Consumption and Production), SDG 9 (Industry, Innovation and Infrastructure) and SDG 11 (Sustainable Cities and Communities).</p>
+      </div>
+    </section>
+
+    <section class="shop" id="shop" data-stop="8">
+      <div class="shop-inner">
+        <p class="kicker">Wear your scent</p>
+        <h2>Choose <em>yours.</em></h2>
+        <div class="products">
+          <article class="product">
+            <header><h3>Lūmen</h3><p class="price">₱85</p></header>
+            <p>Zest — Citrus Collection. lemon · bergamot · green tea · neroli · musk</p>
+            <ul><li>13 scented wax beads + elastic cord</li><li>Customisable gold charms</li><li>Water-based glossy sealer</li></ul>
+            <button class="btn btn-ghost add" data-item="Lūmen bracelet" data-variant="0" data-magnetic>Add to bag</button>
+          </article>
+          <article class="product">
+            <header><h3>Aër</h3><p class="price">₱95</p></header>
+            <p>Zest — Citrus Collection. grapefruit · spearmint · jasmine · white cedar</p>
+            <ul><li>13 scented wax beads + elastic cord</li><li>Customisable gold charms</li><li>Water-based glossy sealer</li></ul>
+            <button class="btn btn-ghost add" data-item="Aër bracelet" data-variant="1" data-magnetic>Add to bag</button>
+          </article>
+          <article class="product">
+            <header><h3>Citra</h3><p class="price">₱110</p></header>
+            <p>Zest — Citrus Collection. tangerine · orange · magnolia · lily · white amber</p>
+            <ul><li>13 scented wax beads + elastic cord</li><li>Customisable gold charms</li><li>Water-based glossy sealer</li></ul>
+            <button class="btn btn-ghost add" data-item="Citra bracelet" data-variant="2" data-magnetic>Add to bag</button>
+          </article>
+          <article class="product">
+            <header><h3>Dulcis</h3><p class="price">₱95</p></header>
+            <p>Crème — Sweet Gourmand. vanilla · caramel · almond · sugar petals · musk</p>
+            <ul><li>13 scented wax beads + elastic cord</li><li>Customisable gold charms</li><li>Water-based glossy sealer</li></ul>
+            <button class="btn btn-ghost add" data-item="Dulcis bracelet" data-variant="3" data-magnetic>Add to bag</button>
+          </article>
+          <article class="product">
+            <header><h3>Noisette</h3><p class="price">₱120</p></header>
+            <p>Crème — Sweet Gourmand. cocoa · hazelnut · brown sugar · milk cream · sandalwood</p>
+            <ul><li>13 scented wax beads + elastic cord</li><li>Customisable gold charms</li><li>Water-based glossy sealer</li></ul>
+            <button class="btn btn-ghost add" data-item="Noisette bracelet" data-variant="4" data-magnetic>Add to bag</button>
+          </article>
+          <article class="product">
+            <header><h3>Ambrois</h3><p class="price">₱130</p></header>
+            <p>Crème — Sweet Gourmand. caramel · orange zest · cream · praline · vanilla · cedarwood</p>
+            <ul><li>13 scented wax beads + elastic cord</li><li>Customisable gold charms</li><li>Water-based glossy sealer</li></ul>
+            <button class="btn btn-ghost add" data-item="Ambrois bracelet" data-variant="5" data-magnetic>Add to bag</button>
+          </article>
+          <article class="product">
+            <header><h3>Sylva</h3><p class="price">₱110</p></header>
+            <p>Oake — Woody Keynote. green leaf · rosemary · oak · vetiver · musk · amber</p>
+            <ul><li>13 scented wax beads + elastic cord</li><li>Customisable gold charms</li><li>Water-based glossy sealer</li></ul>
+            <button class="btn btn-ghost add" data-item="Sylva bracelet" data-variant="6" data-magnetic>Add to bag</button>
+          </article>
+          <article class="product product-lit">
+            <header><h3>Serenum</h3><p class="price">₱140</p></header>
+            <p>Oake — Woody Keynote. cedar · sandalwood · juniper · citrus · vanilla-amber</p>
+            <ul><li>13 scented wax beads + elastic cord</li><li>Customisable gold charms</li><li>Water-based glossy sealer</li></ul>
+            <button class="btn btn-solid add" data-item="Serenum bracelet" data-variant="7" data-magnetic>Add to bag — ₱140</button>
+          </article>
+        </div>
+        <p class="fine">Each bracelet arrives in a plant-based kraft box with an oil-resistant liner that keeps the fragrance in and the paper clean. Store it cool and dry, and the scent lasts.</p>
+      </div>
+    </section>
+
+    <footer class="foot" id="visit">
+      <div class="foot-inner">
+        <p class="foot-word" aria-hidden="true">Scentála</p>
+        <div class="foot-cols">
+          <p>Scentála Partnership<br>Ateneo de Naga University<br>Senior High School, ABM — Naga City</p>
+          <p>Campus booths and university-approved selling areas.<br>Pre-order and customise online — Facebook &amp; Instagram.</p>
+          <nav aria-label="Footer"><a href="#zest">The scents</a><a href="#story">Our story</a><a href="#shop">Shop</a><a href="#top">Care &amp; storage</a></nav>
+        </div>
+        <p class="legal"><span>© 2026 Scentála Partnership</span><span>Beads contain natural oils and candle dye; colour and scent may vary gently from batch to batch.</span></p>
+      </div>
+    </footer>
+  </main>
+
+  <div class="toast" role="status"></div>
+
+  <!-- ── The kraft bag (docked, bottom right) — add a bracelet and watch it arc in ── -->
+  <aside class="sbag" id="sbag" aria-label="Your shopping bag">
+    <button class="sbag-btn" id="sbagBtn" type="button" aria-haspopup="dialog" aria-label="Open bag — empty">
+      <span class="sbag-shadow" aria-hidden="true"></span>
+      <span class="sbag-vessel" aria-hidden="true">
+        <span class="sbag-lift" id="sbagLift">
+          <svg class="sbag-svg sbag-svg--back" viewBox="0 0 200 194" fill="none">
+            <defs>
+              <radialGradient id="sbagMouth" cx="50%" cy="26%" r="80%">
+                <stop offset="0" stop-color="#3a3226"/><stop offset="45%" stop-color="#2a241b"/><stop offset="100%" stop-color="#17130d"/>
+              </radialGradient>
+            </defs>
+            <path d="M68,60 C62,18 138,18 132,60" stroke="#8a6c3c" stroke-width="5.4" stroke-linecap="round"/>
+            <ellipse cx="100" cy="52" rx="63" ry="13.5" fill="url(#sbagMouth)"/>
+            <path d="M37,53 Q100,37 163,53" stroke="#e6d3ab" stroke-width="5.5" stroke-linecap="round"/>
+            <path d="M37,54.5 Q100,38.5 163,54.5" stroke="#7c6440" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <span class="sbag-items" id="sbagItems" aria-hidden="true"></span>
+          <svg class="sbag-svg sbag-svg--front" viewBox="0 0 200 194" fill="none">
+            <defs>
+              <linearGradient id="sbagFace" x1="0.12" y1="0" x2="0.62" y2="1">
+                <stop offset="0" stop-color="#dcc192"/><stop offset="54%" stop-color="#c6a878"/><stop offset="100%" stop-color="#ac8d5c"/>
+              </linearGradient>
+              <linearGradient id="sbagSide" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="rgba(90,70,40,.5)"/><stop offset="10%" stop-color="rgba(90,70,40,.14)"/>
+                <stop offset="32%" stop-color="rgba(255,255,255,.28)"/><stop offset="62%" stop-color="rgba(255,255,255,0)"/>
+                <stop offset="100%" stop-color="rgba(90,70,40,.55)"/>
+              </linearGradient>
+              <linearGradient id="sbagCuff" x1="0" y1="0" x2="0.2" y2="1">
+                <stop offset="0" stop-color="#f0e2c0"/><stop offset="58%" stop-color="#e2cfa6"/><stop offset="100%" stop-color="#c9b184"/>
+              </linearGradient>
+              <linearGradient id="sbagCord" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#f2d98f"/><stop offset="1" stop-color="#b88746"/>
+              </linearGradient>
+              <linearGradient id="sbagCast" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="rgba(70,52,24,.4)"/><stop offset="100%" stop-color="rgba(70,52,24,0)"/>
+              </linearGradient>
+            </defs>
+            <path d="M35,54 L165,54 L162,178 Q162,184 156,184 L44,184 Q38,184 38,178 Z" fill="url(#sbagFace)"/>
+            <path d="M35,54 L165,54 L162,178 Q162,184 156,184 L44,184 Q38,184 38,178 Z" fill="url(#sbagSide)"/>
+            <path d="M35,54 L165,54 L162,178 Q162,184 156,184 L44,184 Q38,184 38,178 Z" stroke="#7c6440" stroke-width="1"/>
+            <path d="M60,66 L61.4,182" stroke="rgba(90,70,40,.42)" stroke-width="1.4"/>
+            <path d="M61.5,66 L62.9,182" stroke="rgba(255,255,255,.5)" stroke-width="1"/>
+            <path d="M140,66 L138.6,182" stroke="rgba(90,70,40,.42)" stroke-width="1.4"/>
+            <path d="M138.5,66 L137.1,182" stroke="rgba(255,255,255,.42)" stroke-width="1"/>
+            <path d="M41,168 L159,168" stroke="rgba(90,70,40,.34)" stroke-width="1.3"/>
+            <path d="M41,169.3 L159,169.3" stroke="rgba(255,255,255,.45)" stroke-width="1"/>
+            <text x="100" y="130" text-anchor="middle" font-family="Italiana,serif" font-size="13" letter-spacing="4.2" fill="#6b4f24" opacity=".9">SCENTALA</text>
+            <path d="M35,68 Q100,84 165,68 L165,82 Q100,98 35,82 Z" fill="url(#sbagCast)"/>
+            <path d="M35,53 Q100,69 165,53 L165,68 Q100,84 35,68 Z" fill="url(#sbagCuff)"/>
+            <path d="M35,53 Q100,69 165,53" stroke="#fbf3de" stroke-width="1.5" fill="none"/>
+            <path d="M35,68 Q100,84 165,68" stroke="#8e7550" stroke-width="1.4" fill="none"/>
+            <ellipse cx="66" cy="64.5" rx="4.6" ry="3.3" fill="#5c4b34"/>
+            <ellipse cx="134" cy="64.5" rx="4.6" ry="3.3" fill="#5c4b34"/>
+            <ellipse cx="66" cy="63.6" rx="4.6" ry="3.3" fill="none" stroke="#fbf3de" stroke-width="1"/>
+            <ellipse cx="134" cy="63.6" rx="4.6" ry="3.3" fill="none" stroke="#fbf3de" stroke-width="1"/>
+            <path d="M66,64 C60,16 140,16 134,64" stroke="#5e4522" stroke-width="9.4" stroke-linecap="round"/>
+            <path d="M66,64 C60,16 140,16 134,64" stroke="url(#sbagCord)" stroke-width="7.2" stroke-linecap="round"/>
+            <path d="M67,62 C61,18 139,18 133,62" stroke="rgba(255,245,222,.55)" stroke-width="1.9" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </span>
+      <span class="sbag-badge" id="sbagBadge" data-empty="true">0</span>
+    </button>
+  </aside>
+
+  <!-- ── Peek drawer ──────────────────────────────────────── -->
+  <div class="speek" id="speek" role="dialog" aria-modal="true" aria-label="Your bag" aria-hidden="true" inert>
+    <div class="speek-panel">
+      <header class="speek-head">
+        <div class="speek-title"><h2>Your bag</h2><span class="speek-count" id="speekCount">Empty</span></div>
+        <button class="speek-close" id="speekClose" type="button" aria-label="Close bag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </header>
+      <ul class="speek-list" id="speekList"></ul>
+      <div class="speek-empty" id="speekEmpty">
+        <strong>Your bag is empty</strong>
+        <span>Add a bracelet and watch it drop into the kraft bag.</span>
+      </div>
+      <footer class="speek-foot">
+        <dl class="speek-lines">
+          <div class="speek-line"><dt>Subtotal</dt><dd id="speekTotal">₱0</dd></div>
+          <div class="speek-line"><dt>Campus pickup</dt><dd id="speekShip">Free</dd></div>
+        </dl>
+        <div class="speek-sum"><span>Total</span><b id="speekGrand">₱0</b></div>
+        <button class="speek-checkout" id="speekCheckout" type="button" disabled><span>Checkout</span></button>
+      </footer>
+    </div>
+    <button class="speek-scrim" id="speekScrim" type="button" tabindex="-1" aria-label="Close bag"></button>
+  </div>
+
+  <div class="flightdeck" id="flightdeck" aria-hidden="true"></div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
