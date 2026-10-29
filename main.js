@@ -929,12 +929,14 @@ function openPeek() {
   speek.setAttribute('aria-hidden', 'false');
   speek.removeAttribute('inert');
   document.body.style.overflow = 'hidden';
+  window.__lenis?.stop?.();
 }
 function closePeek() {
   speek.classList.remove('open');
   speek.setAttribute('aria-hidden', 'true');
   speek.setAttribute('inert', '');
   document.body.style.overflow = '';
+  window.__lenis?.start?.();
 }
 sbagBtn.addEventListener('click', openPeek);
 document.getElementById('speekScrim').addEventListener('click', closePeek);
