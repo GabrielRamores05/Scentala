@@ -341,23 +341,122 @@
   <!-- ── Peek drawer ──────────────────────────────────────── -->
   <div class="speek" id="speek" role="dialog" aria-modal="true" aria-label="Your bag" aria-hidden="true" inert>
     <div class="speek-panel">
-      <header class="speek-head">
-        <div class="speek-title"><h2>Your bag</h2><span class="speek-count" id="speekCount">Empty</span></div>
-        <button class="speek-close" id="speekClose" type="button" aria-label="Close bag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-      </header>
-      <ul class="speek-list" id="speekList"></ul>
-      <div class="speek-empty" id="speekEmpty">
-        <strong>Your bag is empty</strong>
-        <span>Add a bracelet and watch it drop into the kraft bag.</span>
-      </div>
-      <footer class="speek-foot">
-        <dl class="speek-lines">
-          <div class="speek-line"><dt>Subtotal</dt><dd id="speekTotal">₱0</dd></div>
-          <div class="speek-line"><dt>Campus pickup</dt><dd id="speekShip">Free</dd></div>
-        </dl>
-        <div class="speek-sum"><span>Total</span><b id="speekGrand">₱0</b></div>
-        <button class="speek-checkout" id="speekCheckout" type="button" disabled><span>Checkout</span></button>
-      </footer>
+
+      <!-- view 1: the bag -->
+      <section class="speek-view speek-view--bag" id="speekBagView">
+        <header class="speek-head">
+          <div class="speek-title"><h2>Your bag</h2><span class="speek-count" id="speekCount">Empty</span></div>
+          <button class="speek-close" id="speekClose" type="button" aria-label="Close bag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </header>
+        <ul class="speek-list" id="speekList"></ul>
+        <div class="speek-empty" id="speekEmpty">
+          <strong>Your bag is empty</strong>
+          <span>Add a bracelet and watch it drop into the kraft bag.</span>
+        </div>
+        <footer class="speek-foot">
+          <dl class="speek-lines">
+            <div class="speek-line"><dt>Subtotal</dt><dd id="speekTotal">₱0</dd></div>
+            <div class="speek-line"><dt>Delivery</dt><dd id="speekShip">Free</dd></div>
+          </dl>
+          <div class="speek-sum"><span>Total</span><b id="speekGrand">₱0</b></div>
+          <button class="speek-checkout" id="speekCheckout" type="button" disabled><span>Checkout</span></button>
+        </footer>
+      </section>
+
+      <!-- view 2: payment + delivery -->
+      <section class="speek-view speek-view--checkout" id="speekCheckoutView" hidden>
+        <header class="speek-head">
+          <button class="speek-back" id="speekBack" type="button"><span aria-hidden="true">‹</span> Your bag</button>
+          <button class="speek-close" id="speekClose2" type="button" aria-label="Close checkout"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </header>
+        <div class="speek-flow">
+          <h3 class="flow-h">Your order</h3>
+          <div class="order-summary" id="checkoutSummary"></div>
+          <h3 class="flow-h">Payment method</h3>
+          <div class="pay-options" role="radiogroup" aria-label="Payment method">
+            <button class="pay-opt on" type="button" role="radio" aria-checked="true" data-pay="card"><b>Card</b><span>Visa · Mastercard · JCB</span></button>
+            <button class="pay-opt" type="button" role="radio" aria-checked="false" data-pay="gcash"><b>GCash</b><span>Pay with your GCash wallet</span></button>
+            <button class="pay-opt" type="button" role="radio" aria-checked="false" data-pay="maya"><b>PayMaya</b><span>Pay with Maya</span></button>
+          </div>
+
+          <div class="pay-fields" id="payCard">
+            <label class="field full"><span>Card number</span><input id="fCard" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000" maxlength="19"></label>
+            <div class="field-row">
+              <label class="field"><span>Expiry</span><input id="fExp" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/YY" maxlength="5"></label>
+              <label class="field"><span>CVC</span><input id="fCvc" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="4"></label>
+            </div>
+            <label class="field full"><span>Name on card</span><input id="fName" autocomplete="cc-name" placeholder="Juan Dela Cruz"></label>
+          </div>
+
+          <div class="pay-fields" id="payWallet" hidden>
+            <label class="field full"><span>Mobile number</span><input id="fMobile" inputmode="tel" autocomplete="tel" placeholder="09XX XXX XXXX"></label>
+            <p class="pay-hint" id="payHint">You will be redirected to GCash to approve the payment.</p>
+          </div>
+
+          <h3 class="flow-h">Delivery address</h3>
+          <div class="speek-form">
+            <label class="field full"><span>Region</span>
+              <select id="fRegion">
+                <option value="">Select region</option>
+                <option value="NCR — National Capital Region">NCR — National Capital Region</option>
+                <option value="CAR — Cordillera Administrative Region">CAR — Cordillera Administrative Region</option>
+                <option value="Region I — Ilocos Region">Region I — Ilocos Region</option>
+                <option value="Region II — Cagayan Valley">Region II — Cagayan Valley</option>
+                <option value="Region III — Central Luzon">Region III — Central Luzon</option>
+                <option value="Region IV-A — CALABARZON">Region IV-A — CALABARZON</option>
+                <option value="MIMAROPA Region">MIMAROPA Region</option>
+                <option value="Region V — Bicol Region">Region V — Bicol Region</option>
+                <option value="Region VI — Western Visayas">Region VI — Western Visayas</option>
+                <option value="Region VII — Central Visayas">Region VII — Central Visayas</option>
+                <option value="Region VIII — Eastern Visayas">Region VIII — Eastern Visayas</option>
+                <option value="Region IX — Zamboanga Peninsula">Region IX — Zamboanga Peninsula</option>
+                <option value="Region X — Northern Mindanao">Region X — Northern Mindanao</option>
+                <option value="Region XI — Davao Region">Region XI — Davao Region</option>
+                <option value="Region XII — SOCCSKSARGEN">Region XII — SOCCSKSARGEN</option>
+                <option value="Region XIII — Caraga">Region XIII — Caraga</option>
+                <option value="BARMM — Bangsamoro Autonomous Region in Muslim Mindanao">BARMM — Bangsamoro Autonomous Region in Muslim Mindanao</option>
+              </select>
+            </label>
+            <div class="field-row">
+              <label class="field"><span>City / Municipality</span><input id="fCity" autocomplete="address-level2" placeholder="Naga City"></label>
+              <label class="field"><span>Barangay</span><input id="fBrgy" autocomplete="address-level3" placeholder="Barangay"></label>
+            </div>
+            <div class="field-row">
+              <label class="field"><span>Street</span><input id="fStreet" autocomplete="address-line1" placeholder="Street / road"></label>
+              <label class="field"><span>Zone / Purok</span><input id="fZone" placeholder="Zone 4"></label>
+            </div>
+            <div class="field-row">
+              <label class="field"><span>House no. / Unit</span><input id="fHouse" autocomplete="address-line2" placeholder="Blk 2 Lot 5"></label>
+              <label class="field"><span>Postal code</span><input id="fZip" inputmode="numeric" autocomplete="postal-code" placeholder="4400" maxlength="4"></label>
+            </div>
+            <label class="field full"><span>Full address</span><textarea id="fFull" rows="3" placeholder="Built from the fields above — edit if needed"></textarea></label>
+            <label class="field full"><span>Note (optional)</span><textarea id="fNote" rows="2" placeholder="Landmark, gate colour, preferred delivery time…"></textarea></label>
+          </div>
+        </div>
+        <footer class="speek-foot">
+          <div class="speek-sum"><span>Total</span><b id="speekGrand2">₱0</b></div>
+          <button class="speek-checkout" id="speekPlace" type="button"><span>Place order</span></button>
+          <p class="speek-fine">Demonstration checkout — no payment is processed.</p>
+        </footer>
+      </section>
+
+      <!-- view 3: confirmation -->
+      <section class="speek-view speek-view--done" id="speekDoneView" hidden>
+        <header class="speek-head">
+          <div class="speek-title"><h2>Order placed</h2><span class="speek-count" id="doneCount"></span></div>
+          <button class="speek-close" id="speekClose3" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </header>
+        <div class="speek-flow done-flow">
+          <span class="speek-tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+          <p class="done-ref" id="doneRef"></p>
+          <dl class="speek-lines" id="doneLines"></dl>
+          <p class="done-note" id="doneAddr"></p>
+        </div>
+        <footer class="speek-foot">
+          <button class="speek-checkout" id="doneClose" type="button"><span>Done</span></button>
+        </footer>
+      </section>
+
     </div>
     <button class="speek-scrim" id="speekScrim" type="button" tabindex="-1" aria-label="Close bag"></button>
   </div>

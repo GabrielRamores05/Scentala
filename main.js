@@ -830,8 +830,92 @@ function renderPeek() {
   speekCheckout.querySelector('span').textContent = 'Checkout';
 }
 
+// ── Drawer views: bag → checkout (payment + PH delivery address) → confirmation ──
+const speekBagView = document.getElementById('speekBagView');
+const speekCheckoutView = document.getElementById('speekCheckoutView');
+const speekDoneView = document.getElementById('speekDoneView');
+const checkoutSummary = document.getElementById('checkoutSummary');
+const speekGrand2 = document.getElementById('speekGrand2');
+const speekPlace = document.getElementById('speekPlace');
+const payHint = document.getElementById('payHint');
+const payCard = document.getElementById('payCard');
+const payWallet = document.getElementById('payWallet');
+const fCard = document.getElementById('fCard'), fExp = document.getElementById('fExp'), fCvc = document.getElementById('fCvc'), fName = document.getElementById('fName'), fMobile = document.getElementById('fMobile');
+const fRegion = document.getElementById('fRegion'), fCity = document.getElementById('fCity'), fBrgy = document.getElementById('fBrgy'),
+  fStreet = document.getElementById('fStreet'), fZone = document.getElementById('fZone'), fHouse = document.getElementById('fHouse'), fZip = document.getElementById('fZip'), fFull = document.getElementById('fFull'), fNote = document.getElementById('fNote');
+const doneRef = document.getElementById('doneRef'), doneLines = document.getElementById('doneLines'), doneAddr = document.getElementById('doneAddr'), doneCount = document.getElementById('doneCount');
+const bagTotal = () => bag.reduce((a, b) => a + b.price, 0);
+
+// The receipt: every bracelet in the bag, then the totals.
+function renderCheckout() {
+  checkoutSummary.replaceChildren(...bag.map(it => {
+    const row = document.createElement('div'); row.className = 'order-item';
+    const info = document.createElement('div'); info.className = 'order-info';
+    info.innerHTML = `<strong></strong><span></span>`;
+    info.querySelector('strong').textContent = it.name;
+    info.querySelector('span').textContent = `${it.series || 'Scentála'} · 13 scented wax beads + elastic cord · customisable gold charms`;
+    const line = document.createElement('span'); line.className = 'order-line'; line.textContent = money(it.price);
+    row.append(bead(it.tint, 'order-bead'), info, line);
+    return row;
+  }));
+  const sub = bagTotal();
+  const totals = document.createElement('div'); totals.className = 'order-totals';
+  totals.innerHTML = `
+    <div class="ot"><dt>Subtotal (${bag.length} ${bag.length === 1 ? 'bracelet' : 'bracelets'})</dt><dd>${money(sub)}</dd></div>
+    <div class="ot"><dt>Delivery</dt><dd>Free</dd></div>
+    <div class="ot grand"><dt>Total</dt><dd>${money(sub)}</dd></div>`;
+  checkoutSummary.appendChild(totals);
+  speekGrand2.textContent = money(sub);
+}
+
+function showView(v) {
+  speekBagView.hidden = v !== 'bag';
+  speekCheckoutView.hidden = v !== 'checkout';
+  speekDoneView.hidden = v !== 'done';
+  if (v === 'checkout') speekCheckoutView.querySelector('.speek-flow').scrollTop = 0;
+}
+
+function setPay(kind) {
+  document.querySelectorAll('.pay-opt').forEach(b => { const on = b.dataset.pay === kind; b.classList.toggle('on', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); });
+  const wallet = kind !== 'card';
+  payCard.hidden = wallet; payWallet.hidden = !wallet;
+  payHint.textContent = `You will be redirected to ${kind === 'gcash' ? 'GCash' : 'Maya'} to approve the payment.`;
+}
+document.querySelectorAll('.pay-opt').forEach(b => b.addEventListener('click', () => setPay(b.dataset.pay)));
+
+// The full address is composed from the parts until the shopper edits it themselves.
+let addrEdited = false;
+function composeAddress() {
+  if (addrEdited || document.activeElement === fFull) return;
+  fFull.value = [fHouse.value, fStreet.value, fZone.value, fBrgy.value, fCity.value, fZip.value, fRegion.value]
+    .map(s => (s || '').trim()).filter(Boolean).join(', ');
+}
+[fHouse, fStreet, fZone, fBrgy, fCity, fZip].forEach(el => el.addEventListener('input', composeAddress));
+fRegion.addEventListener('change', composeAddress);
+fFull.addEventListener('input', () => { addrEdited = fFull.value.trim().length > 0; });
+
+fCard.addEventListener('input', () => { fCard.value = fCard.value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim(); });
+fExp.addEventListener('input', () => { const v = fExp.value.replace(/\D/g, '').slice(0, 4); fExp.value = v.length > 2 ? v.slice(0, 2) + '/' + v.slice(2) : v; });
+
+function validateOrder() {
+  const kind = document.querySelector('.pay-opt.on').dataset.pay;
+  const checks = kind === 'card'
+    ? [[fCard, /^\d{4} \d{4} \d{4} \d{4}$/], [fExp, /^\d{2}\/\d{2}$/], [fCvc, /^\d{3,4}$/], [fName, /\S/]]
+    : [[fMobile, /^0?9\d{2}\s?\d{3}\s?\d{4}$/]];
+  checks.push([fRegion, /\S/], [fCity, /\S/], [fBrgy, /\S/], [fStreet, /\S/]);
+  let ok = true, firstBad = null;
+  for (const [el, re] of checks) {
+    const good = re.test(el.value.trim());
+    el.closest('.field').classList.toggle('bad', !good);
+    if (!good) { ok = false; firstBad = firstBad || el; }
+  }
+  if (firstBad) firstBad.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  return ok;
+}
+
 function openPeek() {
   renderPeek();
+  showView('bag');
   speek.classList.add('open');
   speek.setAttribute('aria-hidden', 'false');
   speek.removeAttribute('inert');
@@ -844,13 +928,31 @@ function closePeek() {
   document.body.style.overflow = '';
 }
 sbagBtn.addEventListener('click', openPeek);
-document.getElementById('speekClose').addEventListener('click', closePeek);
 document.getElementById('speekScrim').addEventListener('click', closePeek);
+['speekClose', 'speekClose2', 'speekClose3', 'doneClose'].forEach(id => document.getElementById(id).addEventListener('click', closePeek));
 addEventListener('keydown', e => { if (e.key === 'Escape' && speek.classList.contains('open')) closePeek(); });
+document.getElementById('speekBack').addEventListener('click', () => showView('bag'));
+
 speekCheckout.addEventListener('click', () => {
-  if (speekCheckout.disabled) return;
-  speekCheckout.classList.add('done');
-  speekCheckout.querySelector('span').textContent = 'Order placed — we will be in touch';
+  if (speekCheckout.disabled || !bag.length) return;
+  renderCheckout();
+  showView('checkout');
+});
+
+speekPlace.addEventListener('click', () => {
+  if (!bag.length || !validateOrder()) return;
+  const kind = document.querySelector('.pay-opt.on').dataset.pay;
+  const label = { card: 'card', gcash: 'GCash', maya: 'PayMaya' }[kind];
+  const sub = bagTotal();
+  const ref = 'SC-' + String(Date.now()).slice(-6) + '-' + Math.floor(Math.random() * 90 + 10);
+  doneRef.innerHTML = `Thank you — order <b>${ref}</b> is placed. We will message you to confirm.`;
+  doneCount.textContent = `${bag.length} ${bag.length === 1 ? 'bracelet' : 'bracelets'} · ${money(sub)}`;
+  doneLines.innerHTML = bag.map(it => `<div class="speek-line"><dt>${it.name} · ${it.series || 'Scentála'}</dt><dd>${money(it.price)}</dd></div>`).join('')
+    + `<div class="speek-line"><dt>Paid with ${label}</dt><dd>${money(sub)}</dd></div>`;
+  doneAddr.textContent = `Delivering to ${fFull.value.trim() || 'your address'}${fNote.value.trim() ? ` — “${fNote.value.trim()}”` : ''}.`;
+  bag.length = 0; sbagItems.replaceChildren();
+  bump(); renderPeek();
+  showView('done');
 });
 
 // The dock lives with the shop beat: it fades in when the products scroll into view.
