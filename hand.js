@@ -25,7 +25,7 @@ const NAIL = 0xe4c3ae;
 const BOX_MIN = [-2.99, -0.60, -0.92];
 const BOX_SIZE = [5.44, 1.20, 1.84];
 const RES = 104;
-const BLEND = 0.018;          // smooth-union radius
+const BLEND = 0.014;          // smooth-union radius (tight enough that held-together fingers stay distinct)
 const FAR = 100;
 
 // ── Signed-distance primitives ────────────────────────────────────────────────
@@ -95,21 +95,24 @@ export function createHand({ env }) {
   // Wrist: 0.398 across — just inside the bead ring's 0.41 opening.
   ellipsoid([0.02, 0, 0], [0.23, 0.335, 0.398]);
 
-  // Palm: one flat mass, plus the thenar and hypothenar eminences and the knuckle ridge.
-  ellipsoid([-0.690, -0.020, 0.000], [0.640, 0.150, 0.540]);
-  ellipsoid([-0.510, -0.045, 0.380], [0.400, 0.140, 0.250]);
-  ellipsoid([-0.650, -0.045, -0.415], [0.390, 0.128, 0.235]);
-  ellipsoid([-1.290, 0.006, 0.000], [0.200, 0.140, 0.530]);
+  // Palm: one long, flat mass, plus the thenar and hypothenar eminences and the knuckle ridge.
+  // Flatter (thinner on Y) and a touch longer than a boxy hand, as in the reference.
+  ellipsoid([-0.710, -0.018, 0.000], [0.700, 0.122, 0.470]);
+  ellipsoid([-0.520, -0.044, 0.330], [0.400, 0.112, 0.220]);
+  ellipsoid([-0.660, -0.044, -0.360], [0.390, 0.106, 0.206]);
+  ellipsoid([-1.330, 0.004, 0.000], [0.200, 0.116, 0.450]);
 
   // ── Fingers: index, middle, ring, little — close at the knuckles, a few degrees of fan at the tips.
   const ZAX = new THREE.Vector3(0, 0, 1);
   const YAX = new THREE.Vector3(0, 1, 0);
   const PHAL = [0.42, 0.34, 0.24];
+  // Held together (0.20 between knuckles ≈ touching at these radii), long and slim, with just a
+  // gentle downward curl — the relaxed, closed hand of the reference, not a splayed one.
   const FINGERS = [
-    { k: [-1.300, -0.004, 0.440], len: 1.300, r: 0.100, curl: 0.105, spread: 0.050 },
-    { k: [-1.325, 0.006, 0.148], len: 1.400, r: 0.107, curl: 0.078, spread: 0.012 },
-    { k: [-1.310, -0.004, -0.148], len: 1.330, r: 0.100, curl: 0.100, spread: -0.030 },
-    { k: [-1.280, -0.022, -0.430], len: 1.070, r: 0.089, curl: 0.140, spread: -0.090 },
+    { k: [-1.330, -0.004, 0.320], len: 1.360, r: 0.086, curl: 0.115, spread: 0.010 },
+    { k: [-1.345, 0.005, 0.106], len: 1.450, r: 0.090, curl: 0.090, spread: 0.000 },
+    { k: [-1.335, -0.004, -0.108], len: 1.380, r: 0.086, curl: 0.108, spread: -0.012 },
+    { k: [-1.305, -0.020, -0.322], len: 1.130, r: 0.076, curl: 0.148, spread: -0.040 },
   ];
   const tips = [];
   for (const f of FINGERS) {

@@ -4,8 +4,9 @@
 // All radii are in units of the bead-ring radius R, all heights are measured up from the ring centre.
 //   • nine cream beads, counter-clockwise from 90°, spaced 26.875°, bead radius 0.255R — a bead sits
 //     dead centre at the top so the atomiser has something to mount on
-//   • the atomiser cap, measured off the artwork: a gold tail, a gold collar lens, a brass neck, a
-//     dark green shade and a pale bell, from 1.00R to 1.75R above the centre
+//   • the atomiser cap, measured off the artwork: a brass neck, a dark green shade and a pale bell,
+//     seated on the top bead (the gold tail and the wide collar disc have been removed), ~1.20R to
+//     1.58R above the centre
 //   • the leaf sprig, as base→tip pairs, completing the ring across the gap it leaves on the right
 export const MARK = {
   beads: 9,
@@ -14,13 +15,11 @@ export const MARK = {
   beadR: 0.255,
 
   // [yFrom, yTo, rFrom, rTo, colour, kind] — bottom to top, y in R and r in R. The bead at the top
-  // reaches 1.255R, so the tail is buried in that bead and the collar seats on its crown.
+  // reaches 1.255R, so the neck sinks a little into that bead and the crown seats on its crown.
   cap: [
-    [1.060, 1.315, 0.135, 0.150, 'gold', 'frustum'],   // tail: buried in the top bead, a stub showing
-    [1.315, 1.435, 0.370, 0.370, 'gold', 'lens'],      // collar disc, the widest point
-    [1.435, 1.520, 0.215, 0.200, 'brass', 'frustum'],  // neck
-    [1.520, 1.675, 0.325, 0.257, 'green', 'frustum'],  // shade
-    [1.682, 1.810, 0.257, 0.167, 'cream', 'bell'],     // pale bell on top
+    [1.200, 1.285, 0.215, 0.200, 'brass', 'frustum'],  // neck, seated on the top bead
+    [1.285, 1.440, 0.325, 0.257, 'green', 'frustum'],  // shade
+    [1.447, 1.575, 0.257, 0.167, 'cream', 'bell'],     // pale bell on top
   ],
 
   // [baseAngle°, baseR, tipAngle°, tipR] — a frond grown along the vine, filling the arc the beads

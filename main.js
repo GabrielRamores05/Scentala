@@ -8,7 +8,7 @@ import { createBracelet, RING_R, BEAD_R } from './bracelet.js';
 import { createFloor } from './floor.js';
 import { createPackaging, BOX } from './packaging.js';
 import { createHand } from './hand.js';
-import { createStream, burnKey, BURN_GLSL, BURN_A, BURN_B, DUR } from './stream.js';
+import { createStream, createFlyer, burnKey, BURN_GLSL, BURN_A, BURN_B, DUR } from './stream.js';
 
 const D2R = Math.PI / 180;
 const Q = new URLSearchParams(location.search);
@@ -191,6 +191,9 @@ function makeTitle() {
 // ─── The bracelet, its box and the arm it is worn on ───────────────────────────
 let bracelet = null, box = null, arm = null;
 const braceletWorld = new THREE.Vector3();
+// The one-shot ingredient flyer (a product click pours gold + ingredient chips into the beads).
+const FLY_END = 1.2;                 // flyer progress at which every particle has landed
+const flyer = { points: null, uniforms: null, P: 0, active: false, glow: 0 };
 // Where the ring sits when it is lying in the box (ring centre, in box-local space): the mark is not
 // centred on its ring, so the whole thing is nudged to sit square in the tray.
 const IN_BOX = new THREE.Vector3(-0.05, 0, 0);
@@ -608,7 +611,9 @@ function tick(dt, t) {
   absorb += intro.P > 0.3 && intro.P < P_END ? Math.sin(clamp((intro.P - 0.3) / (P_END - 0.3)) * Math.PI) * 0.8 : 0;
   const lvl = clamp(introFill + noteFill * FILL_STEP);
   bracelet.state.fill = lvl;
-  bracelet.setInfusion(damp(bracelet.state.glow, lvl * (1 + clamp(absorb) * 0.25), 4, dt));
+  // The product-click bump: a short extra glow so the beads flash in the freshly chosen tint.
+  bracelet.setInfusion(damp(bracelet.state.glow, lvl * (1 + clamp(absorb) * 0.25) + flyer.glow, 4, dt));
+  flyer.glow = Math.max(0, flyer.glow - dt * 0.75);
   bracelet.solve(dt);
 
   // Streams need the bracelet's pose (ring centre in world space).
@@ -626,6 +631,17 @@ function tick(dt, t) {
     u.uAxisR.value = RING_R * 1.12;
   }
   for (const n of notes) if (n.stream.points.visible) n.stream.uniforms.uNoteM.value.copy(n.mesh.matrixWorld);
+
+  // The ingredient flyer: ride the ring's live pose and walk its one-shot progress.
+  if (flyer.active && flyer.uniforms) {
+    const fu = flyer.uniforms;
+    fu.uTime.value = t;
+    fu.uRingM.value.copy(bracelet.pivot.matrixWorld);
+    fu.uRingR.value = RING_R;
+    fu.uP.value = flyer.P;
+    flyer.P += dt;
+    if (flyer.P >= FLY_END) { flyer.P = FLY_END; flyer.active = false; flyer.points.visible = false; }
+  }
 
   // Medallion lighting follows whichever collection is on stage.
   let best = null, bw = 0;
@@ -972,16 +988,68 @@ if (shopSec) new IntersectionObserver(es => {
   for (const e of es) document.body.classList.toggle('is-shop', e.isIntersecting);
 }, { threshold: 0.02 }).observe(shopSec);
 
+// ── The ingredient flyer: a product click bursts gold into the beads ──────────
+// The particles arc from the clicked card (its screen point, unprojected into the scene) onto points
+// around the bead ring, and the note's ingredients ride alongside as gold word chips. One reusable
+// Points, one progress uniform; the tint is the chosen variant's.
+function launchFlyer(fromEl, i) {
+  const v = VARIANTS[i];
+  if (!v || !flyer.points || !bracelet) return;
+  const r = fromEl.getBoundingClientRect();
+  const nx = ((r.left + r.width / 2) / innerWidth) * 2 - 1;
+  const ny = 1 - ((r.top + r.height / 2) / innerHeight) * 2;
+  const dir = v4.set(nx, ny, 0.5).unproject(camera).sub(camera.position).normalize();
+  flyer.uniforms.uOrigin.value.copy(camera.position).addScaledVector(dir, 2.6);
+  flyer.uniforms.uTint.value.set(v.tint);
+  flyer.uniforms.uSpin.value = Math.random() * 6.283;
+  flyer.glow = 0.55;                 // the short infusion bump: the beads flash in the new tint
+  flyer.P = 0;
+  if (reduced) { flyer.points.visible = false; flyer.active = false; return; }
+  flyer.active = true;
+  flyer.points.visible = true;
+  spawnChips(r, v);
+}
+
+// Ingredient word chips, strung from the note: they arc to beads spread around the ring and dissolve in.
+function spawnChips(from, v) {
+  const words = v.note.split('·').map(s => s.trim()).filter(Boolean).slice(0, 6);
+  const slots = [0, 2, 4, 6, 8, 1];
+  const tmp = new THREE.Vector3(), t0 = performance.now();
+  const sx = from.left + from.width / 2, sy = from.top + from.height / 2;
+  words.forEach((word, k) => {
+    const el = document.createElement('span');
+    el.className = 'fly-chip';
+    el.textContent = word;
+    flightdeck.appendChild(el);
+    const delay = k * 90, dur = 900;
+    (function step(now) {
+      const tt = (now - t0 - delay) / dur;
+      if (tt < 0) { requestAnimationFrame(step); return; }
+      const e = Math.min(1, tt), ease = easeInOutCubic(e), u = 1 - ease;
+      bracelet.beads[slots[k % slots.length]].getWorldPosition(tmp).project(camera);
+      const tx = (tmp.x + 1) / 2 * innerWidth, ty = (1 - tmp.y) / 2 * innerHeight;
+      const d = Math.hypot(tx - sx, ty - sy);
+      const cxp = (sx + tx) / 2, cyp = Math.min(sy, ty) - Math.min(300, d * 0.5 + 70);
+      const x = u * u * sx + 2 * u * ease * cxp + ease * ease * tx;
+      const y = u * u * sy + 2 * u * ease * cyp + ease * ease * ty;
+      el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(-50%,-50%) scale(${(1 - 0.4 * ease).toFixed(3)})`;
+      el.style.opacity = e > 0.8 ? String(Math.max(0, (1 - e) / 0.2)) : String(Math.min(1, e * 5));
+      if (e < 1) requestAnimationFrame(step); else el.remove();
+    })(t0);
+  });
+}
+
 document.querySelectorAll('.add').forEach(b => b.addEventListener('click', () => {
-  const v = VARIANTS[+b.dataset.variant];
-  if (v) setVariant(+b.dataset.variant);
+  const i = +b.dataset.variant;
+  const v = VARIANTS[i];
+  if (v) { setVariant(i); launchFlyer(b, i); }
   const item = { uid: ++bagUid, name: v?.name || b.dataset.item, series: v?.series || '', tint: v?.tint || '#b88746', price: parseFloat(String(v?.price).replace(/[^\d.]/g, '')) || 0 };
   toastEl.textContent = `${b.dataset.item} — added. Wrapped in kraft and sent out from Naga.`;
   toastEl.classList.add('on');
   clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 3200);
   flyToBag(b, item, () => { bag.push(item); addPoke(item); bump(); if (speek.classList.contains('open')) renderPeek(); });
 }));
-document.querySelectorAll('.variant').forEach(b => b.addEventListener('click', () => setVariant(+b.dataset.variant)));
+document.querySelectorAll('.variant').forEach(b => b.addEventListener('click', () => { const i = +b.dataset.variant; setVariant(i); launchFlyer(b, i); }));
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 magnetic();
@@ -993,6 +1061,14 @@ await fontsReady;
 bracelet = createBracelet({ renderer, env: ENV });
 scene.add(bracelet.root);
 useEnv(bracelet.root);
+
+// The one-shot ingredient flyer: built once, reused for every product click.
+const fly = createFlyer(900, { size: 14 });
+flyer.points = fly.points;
+flyer.uniforms = fly.uniforms;
+flyer.points.visible = false;
+scene.add(flyer.points);
+engine.onResize((w, h, dpr) => { flyer.uniforms.uDpr.value = dpr * h / 900; });
 
 // The packaging (image 4 of the brief) and the arm the bracelet is worn on (images 5, 6, 8).
 box = createPackaging({ renderer, env: ENV });

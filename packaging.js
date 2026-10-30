@@ -174,13 +174,15 @@ export function createPackaging({ renderer, env }) {
 
   // ── Dimension annotations, drawn like the dieline: 8 in × 8 in × 3 in ─────
   const dims = new THREE.Group();
-  const dimLine = new THREE.MeshBasicMaterial({ color: 0xf4e7bd, transparent: true, opacity: 0, depthWrite: false, toneMapped: false });
+  const dimLine = new THREE.MeshBasicMaterial({ color: 0xf4e7bd, transparent: true, opacity: 0, depthWrite: false, toneMapped: false, side: THREE.DoubleSide });
   const marker = (w, d, x, z, y) => {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), dimLine);
     m.rotation.x = -Math.PI / 2; m.position.set(x, y, z);
     dims.add(m);
   };
-  function dimLabel(text, x, z, y, w = 0.30) {
+  // Upright: the standing height label is a billboard, so it always reads head-on instead of being
+  // skewed by the camera's perspective — the "3 IN" callout stays legible at any orbit.
+  function dimLabel(text, x, z, y, w = 0.30, upright = false) {
     const c = document.createElement('canvas'); c.width = 256; c.height = 96;
     const g = c.getContext('2d');
     g.fillStyle = '#f6ecc9'; g.textAlign = 'center'; g.textBaseline = 'middle';
@@ -188,28 +190,43 @@ export function createPackaging({ renderer, env }) {
     if ('letterSpacing' in g) g.letterSpacing = '4px';
     g.fillText(text, 128, 52);
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
-    const m = new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0, depthWrite: false, toneMapped: false });
+    if (upright) {
+      const m = new THREE.SpriteMaterial({ map: t, transparent: true, opacity: 0, depthWrite: false, depthTest: false, toneMapped: false });
+      const sprite = new THREE.Sprite(m);
+      sprite.scale.set(w, w * 96 / 256, 1);
+      sprite.position.set(x, y, z);
+      dims.add(sprite);
+      return m;
+    }
+    const m = new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0, depthWrite: false, toneMapped: false, side: THREE.FrontSide });
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, w * 96 / 256), m);
-    mesh.rotation.x = -Math.PI / 2; mesh.position.set(x, y, z);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.set(x, y, z);
     dims.add(mesh);
     return m;
   }
   const DY = baseH + 0.075, OFF = outer + 0.16;
-  // Width and depth, with ticks at both ends.
+  // Width and depth, with ticks at both ends — these lie on the floor, viewed from above.
   marker(2 * outer + 0.03, 0.013, 0, OFF, DY);
   marker(0.013, 2 * outer + 0.03, OFF, 0, DY);
   for (const s of [-1, 1]) { marker(0.013, 0.10, s * outer, OFF, DY); marker(0.10, 0.013, OFF, s * outer, DY); }
-  // Height, up the near-left corner: the full 3" thickness of the closed box, floor to lid.
+
+  // Height: 3" is the box's vertical thickness, so this dimension STANDS UP at the near-left corner,
+  // floor to lid top, in a vertical plane the camera reads head-on — not a flat line on the ground.
   const hx = -OFF, hz = OFF, H = closedY + lidH;
   const hBar = new THREE.Mesh(new THREE.PlaneGeometry(0.013, H), dimLine);
-  hBar.rotation.x = -Math.PI / 2; hBar.rotation.z = -Math.PI / 2;
   hBar.position.set(hx, H / 2, hz);
   dims.add(hBar);
-  for (const s of [-1, 1]) { marker(0.10, 0.013, hx, hz, H / 2 + s * H / 2); }
+  // A short horizontal tick at each end of the vertical bar.
+  for (const s of [-1, 1]) {
+    const tick = new THREE.Mesh(new THREE.PlaneGeometry(0.10, 0.013), dimLine);
+    tick.position.set(hx, H / 2 + s * H / 2, hz);
+    dims.add(tick);
+  }
   const dimMats = [dimLine,
     dimLabel('8 IN', 0, OFF + 0.26, DY),
     dimLabel('8 IN', OFF + 0.26, 0, DY),
-    dimLabel('3 IN', hx - 0.30, hz + 0.05, H + 0.10, 0.26),
+    dimLabel('3 IN', hx + 0.26, hz - 0.24, H * 0.5, 0.32, true),
   ];
   root.add(dims);
   function setDims(v) {

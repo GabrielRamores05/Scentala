@@ -200,6 +200,11 @@ em { font-style: italic; }
 .flightdeck { position: fixed; inset: 0; z-index: 45; pointer-events: none; }
 .flier { position: fixed; left: 0; top: 0; border-radius: 50%;
   box-shadow: inset 0 -3px 7px rgba(0,0,0,.4), inset 0 3px 7px rgba(255,255,255,.55), 0 0 0 2px rgba(184,135,70,.6), 0 14px 22px -8px rgba(0,0,0,.6); }
+/* Ingredient word chips that fly from a product click into the beads. */
+.fly-chip { position: fixed; left: 0; top: 0; pointer-events: none; white-space: nowrap; opacity: 0;
+  padding: 5px 11px; border-radius: 999px; font: 500 11px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: #2a1f0d;
+  background: linear-gradient(180deg, #f4e3a6, #cf9a4c);
+  box-shadow: 0 0 0 1px rgba(184,135,70,.55), 0 8px 18px -8px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.55); }
 
 /* peek drawer */
 .speek { position: fixed; inset: 0; z-index: 40; pointer-events: none; }

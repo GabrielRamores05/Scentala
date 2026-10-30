@@ -1,6 +1,7 @@
 // The bracelet, built to the SCENTÁLA mark (mark.js, measured off Scentala_logo.png): nine cream wax
-// beads ringed in gold, counter-clockwise from just right of the cap; a dark-green atomiser cap on a
-// brass neck crowning the ring; a leaf sprig completing the ring across the gap on the right.
+// beads ringed in gold, counter-clockwise from just right of the cap; a brass-neck atomiser crown
+// (dark-green shade under a pale bell) seated on the top bead; a leaf sprig completing the ring across
+// the gap on the right.
 // Everything is procedural — no meshes are generated offline.
 //
 // The product (from the SCENTÁLA brief): beads of beeswax, shea butter and jojoba oil, made porous

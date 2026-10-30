@@ -67,6 +67,63 @@ const FRAG = /* glsl */`
     gl_FragColor = vec4(vCol * a * vA, 1.0); }
 `;
 
+// ── The one-shot ingredient flyer ─────────────────────────────────────────────
+// Where the note stream is bound to a note mesh and flies into the ring, this one starts at a point in
+// WORLD space (a click on a product card, unprojected) and rains onto the bead ring. It is reused for
+// every add: one Points object, one draw call, driven by a single 0→1.2 progress uniform. The bezier +
+// per-particle stagger are the same idea as the note stream, just aimed the other way.
+const FLY_VERT = /* glsl */`
+  attribute vec4 aRand; attribute float aKey;
+  uniform mat4 uRingM; uniform vec3 uOrigin, uTint; uniform float uRingR, uSpin;
+  uniform float uP, uTime, uDpr, uSize, uDur;
+  varying vec3 vCol; varying float vA;
+  vec3 bez(vec3 a, vec3 b, vec3 c, vec3 d, float t){ float s = 1.0 - t; return s*s*s*a + 3.0*s*s*t*b + 3.0*s*t*t*c + t*t*t*d; }
+  void main(){
+    float t = clamp((uP - aKey * 0.30) / (uDur * (0.70 + aRand.w * 0.55)), 0.0, 1.0);
+    if (t <= 0.0 || t >= 1.0) { gl_Position = vec4(0.0, 0.0, -2.0, 1.0); gl_PointSize = 0.0; vA = 0.0; vCol = vec3(0.0); return; }
+    float a = aRand.x * 6.2831853 + uSpin;
+    vec3 rl = vec3(cos(a) * uRingR, sin(a) * uRingR, (aRand.z - 0.5) * 0.30);
+    vec3 E = (uRingM * vec4(rl, 1.0)).xyz;
+    vec3 O = uOrigin;
+    vec3 up = vec3(0.0, 1.0, 0.0);
+    vec3 C1 = O + up * (0.80 + aRand.y * 0.70);
+    vec3 C2 = mix(O, E, 0.55) + up * (0.55 + aRand.z * 0.50);
+    float e = t < 0.5 ? 4.0 * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 3.0) / 2.0;
+    e = mix(t, e, 0.55);
+    vec3 p = bez(O, C1, C2, E, e);
+    float w = sin(t * 3.14159);
+    p += vec3(sin(uTime * 1.5 + aRand.x * 40.0 + t * 8.0), cos(uTime * 1.3 + aRand.y * 30.0 + t * 6.0), sin(uTime * 1.4 + aRand.z * 20.0 + t * 7.0)) * 0.05 * w;
+    vec3 gold = mix(vec3(1.0, 0.5, 0.12), vec3(1.0, 0.75, 0.4), aRand.z * aRand.z);
+    vCol = mix(uTint * 1.5 + gold * 0.5, gold * 1.9, smoothstep(0.05, 0.5, t)) * (1.0 + exp(-t * 16.0) * 2.5);
+    vA = smoothstep(1.0, 0.9, t) * (0.45 + 0.55 * aRand.w);
+    vec4 mv = viewMatrix * vec4(p, 1.0);
+    gl_Position = projectionMatrix * mv;
+    gl_PointSize = uSize * (0.5 + aRand.y * 0.9) * uDpr / -mv.z;
+  }
+`;
+
+/** A reusable one-shot flyer: set uOrigin/uTint/uSpin/uRingR, then walk uP from 0 to ~1.2. */
+export function createFlyer(count, { size = 11 } = {}) {
+  const g = new THREE.BufferGeometry();
+  const key = new Float32Array(count), rand = new Float32Array(count * 4);
+  for (let i = 0; i < count; i++) {
+    key[i] = Math.random();
+    rand[i * 4] = Math.random(); rand[i * 4 + 1] = Math.random(); rand[i * 4 + 2] = Math.random(); rand[i * 4 + 3] = Math.random();
+  }
+  g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(count * 3), 3));
+  g.setAttribute('aKey', new THREE.BufferAttribute(key, 1));
+  g.setAttribute('aRand', new THREE.BufferAttribute(rand, 4));
+  const uniforms = {
+    uRingM: { value: new THREE.Matrix4() }, uOrigin: { value: new THREE.Vector3() }, uTint: { value: new THREE.Color(1, 1, 1) },
+    uRingR: { value: 0.55 }, uSpin: { value: 0 }, uP: { value: 0 }, uTime: { value: 0 }, uDpr: { value: 1 }, uSize: { value: size }, uDur: { value: DUR },
+  };
+  const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: FLY_VERT, fragmentShader: FRAG, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+  const points = new THREE.Points(g, mat);
+  points.frustumCulled = false;
+  points.renderOrder = 9;
+  return { points, uniforms, count };
+}
+
 /**
  * pts: { local: Float32Array(3N), normal: Float32Array(3N), color: Float32Array(3N), key: Float32Array(N) }
  */
